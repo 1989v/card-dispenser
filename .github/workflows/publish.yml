@@ -1,0 +1,22 @@
+# 태그 v* 를 밀면 npm 에 게시한다. 사람 OTP 없이 — NPM_TOKEN 은 2FA 우회가 켜진 granular 토큰이어야 한다.
+# (npmjs.com → Access Tokens → Granular → Packages: read & write, all packages → "Bypass two-factor authentication")
+name: publish
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+  id-token: write   # provenance
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', registry-url: 'https://registry.npmjs.org' }
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/no-deps.mjs
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
