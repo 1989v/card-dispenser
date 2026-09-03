@@ -59,6 +59,7 @@ const d = createDispenser(host, {
       <span class="cd-meta">${escapeHtml(p.district)}</span>
     </div>`,
   onChange: (p) => show(p),            // front card changed (held back during a spin)
+  onActivate: (p) => location.assign(p.url), // tap / click / Enter on the revealed card
 });
 
 // scroll-scrub (desktop): rotate 110° while the section passes through the viewport
@@ -82,6 +83,9 @@ size — the drum scales itself to the host width (`--cd-s`).
 | `rotateBy(deg)` · `snap()` | Turn by an amount · settle the nearest card at the front (after a drag). |
 | `spinTo(index \| 'random', ms = 2600)` | Two full turns, eases out, stops. Resolves with the item. `'random'` excludes the current one. |
 | `current()` · `currentIndex()` | The front item and its index in `items`. |
+
+Callbacks: `onChange(item, i)` when the front card changes (quiet during a spin); `onActivate(item, i)` when the
+fully revealed front card is tapped, clicked, or activated with Enter / Space. A drag that ends on the card is not an activation.
 | `destroy()` | Remove everything and listeners. |
 
 Options: `items` `render` `onChange` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
@@ -134,6 +138,13 @@ Under `prefers-reduced-motion` spins and snaps complete instantly.
 `.cd-world` uses `rotateX(-tilt)`. The sign matters: with a positive tilt the front (+Z) of the drum
 ends up at the *top* of the screen and you are looking at it from below. The pulled card counter-rotates
 with `rotateX(+tilt)` so it faces the camera squarely.
+
+## Performance
+
+A card is five 3D elements (two faces, three edges), so a drum is hundreds of compositor layers. Two things keep
+mobile scrolling smooth: the scene uses `content-visibility: auto`, so drums that are off-screen are not rendered at all,
+and `will-change: transform` is applied only while the drum is moving (`.cd.is-live`). Don't call `setAngle` from
+scroll on touch devices.
 
 ## Size
 
