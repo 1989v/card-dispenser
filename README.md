@@ -21,8 +21,8 @@ instead of a `Math.random()` behind a button.
 - **One angle drives everything.** Drum angle = the angle scroll gives (`setAngle`) + the angle the
   user gives (drag, spin). A card's "pulled-out amount" depends only on its angular distance from the
   front, so scroll-scrub, drag and spin all go through one layout function.
-- **Real counts, cheap DOM.** Every item gets a slot, but only the five cards nearest the front get their
-  face rendered. Hundreds of slots, five renders.
+- **Real counts, cheap DOM.** Every item gets a slot, but a card's face is rendered only once it comes within
+  five steps of the front. Hundreds of slots, a handful of renders at a time.
 - **Picks are always real.** With `minCards`, a short list is repeated around the drum so it doesn't look
   empty, but slot *s* maps to `items[s % n]` — the thing that lands is always an actual item.
 - **Quiet spins.** While spinning, `onChange` is held back and fired once when the drum stops. Titles that
@@ -83,6 +83,8 @@ size — the drum scales itself to the host width (`--cd-s`).
 
 Options: `items` `render` `onChange` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
 `pullScale` `dwell` `ticksEvery` `label`. Defaults are tuned for a 520–600 px wide host.
+
+Only cards within five steps of the front have `render` called (once each, as they come around).
 
 Pure helpers are exported for tests: `pullAmount(angleDistance, step, dwell)`, `slotCount(n, minCards)`,
 `escapeHtml(value)`.
