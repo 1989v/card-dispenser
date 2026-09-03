@@ -46,7 +46,7 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --minify && cp src/card-dispenser.css dist/card-dispenser.css",
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify && cp src/card-dispenser.css dist/card-dispenser.css && mkdir -p docs/lib && cp dist/index.js dist/card-dispenser.css docs/lib/",
     "test": "vitest run",
     "no-deps": "node scripts/no-deps.mjs",
     "prepare": "npm run build"

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>card-dispenser demo</title>
-  <link rel="stylesheet" href="https://unpkg.com/card-dispenser@0.1.0/dist/card-dispenser.css">
+  <link rel="stylesheet" href="./lib/card-dispenser.css">
   <style>
     :root { color-scheme: light dark; }
     body { margin: 0; font: 16px/1.6 ui-sans-serif, system-ui, sans-serif; background: #f9f8f2; color: #1d1d1f; }
@@ -41,7 +41,7 @@
     <p><code>npm i card-dispenser</code> · <a href="https://github.com/1989v/card-dispenser">GitHub</a> · <a href="https://www.npmjs.com/package/card-dispenser">npm</a></p>
   </div>
   <script type="module">
-    import { createDispenser, escapeHtml } from 'https://unpkg.com/card-dispenser@0.1.0/dist/index.js';
+    import { createDispenser, escapeHtml } from './lib/index.js';
     const kinds = ['history', 'nature', 'culture', 'leisure'];
     const hues = [18, 84, 150, 205, 262, 330];
     const items = Array.from({ length: 48 }, (_, i) => ({ title: `Card ${String(i + 1).padStart(2, '0')}`, kind: kinds[i % kinds.length], hue: hues[i % hues.length] }));
