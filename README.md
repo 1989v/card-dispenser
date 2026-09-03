@@ -25,6 +25,9 @@ instead of a `Math.random()` behind a button.
   five steps of the front. Hundreds of slots, a handful of renders at a time.
 - **Picks are always real.** With `minCards`, a short list is repeated around the drum so it doesn't look
   empty, but slot *s* maps to `items[s % n]` — the thing that lands is always an actual item.
+- **Two phases.** While the drum is *moving* (spin, drag, scroll) the card passing the front only nudges up out of
+  the deck (`peek`). Only when the drum *stops* — the spin lands, a drag snaps, scrolling goes quiet for `idleMs` —
+  does the front card fully rise and turn to face you. A roulette whose cards keep jumping out shows motion, not a pick.
 - **Quiet spins.** While spinning, `onChange` is held back and fired once when the drum stops. Titles that
   flicker past at 30 fps are unreadable.
 - **Zero dependencies.** DOM + CSS 3D. Framework-agnostic; a React wrapper is ~20 lines of `useEffect`.
@@ -82,7 +85,9 @@ size — the drum scales itself to the host width (`--cd-s`).
 | `destroy()` | Remove everything and listeners. |
 
 Options: `items` `render` `onChange` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
-`pullScale` `dwell` `ticksEvery` `label`. Defaults are tuned for a 520–600 px wide host.
+`pullScale` `peek` `revealMs` `idleMs` `dwell` `ticksEvery` `label`. Defaults are tuned for a 520–600 px wide host.
+`peek` (18 px) is how far a passing card nudges up while the drum moves; `revealMs` (360) is the rise once it
+stops; `idleMs` (260) is how long `setAngle` must stay quiet before the drum counts as stopped.
 
 Only cards within five steps of the front have `render` called (once each, as they come around).
 

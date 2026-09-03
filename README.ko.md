@@ -21,6 +21,9 @@
   카드의 "뽑힘 정도"는 정면과의 각 거리로만 정해지므로 스크럽·드래그·스핀이 전부 같은 layout 을 지난다.
 - **실제 개수, 싼 DOM.** 항목마다 칸을 주되 앞면은 정면 다섯 칸 안으로 들어올 때 한 번 그린다. 칸 수백, 렌더는 그때그때 몇 장.
 - **뽑히는 건 실제 항목뿐.** `minCards` 로 짧은 목록을 돌려 채워도 칸 s 는 `items[s % n]` 이다.
+- **두 단계.** 판이 **움직이는 동안**(스핀·드래그·스크롤)에는 정면을 지나는 카드가 덱에서 살짝 위로 밀려 올라오기만
+  하고(`peek`), 판이 **멈춘 뒤**(스핀 종료·스냅·스크롤이 `idleMs` 만큼 조용)에야 정면 카드가 완전히 나와 얼굴을 보인다.
+  룰렛이 돌 때마다 카드가 통째로 튀어나오면 무엇이 뽑혔는지가 아니라 움직임만 보인다.
 - **조용한 스핀.** 도는 동안 `onChange` 를 미루고 멈춘 뒤 한 번만. 빠르게 지나가는 제목은 읽을 수 없다.
 - **의존성 0.** DOM + CSS 3D. 프레임워크를 모른다 — React 다리는 `useEffect` 스무 줄이다.
 
@@ -59,7 +62,8 @@ d.destroy();
 | `current()` · `currentIndex()` | 정면 항목 |
 | `destroy()` | 전부 치운다 |
 
-옵션: `radius` `cardW` `cardH` `tilt` `lift` `forward` `pullScale` `dwell` `ticksEvery` `label`.
+옵션: `radius` `cardW` `cardH` `tilt` `lift` `forward` `pullScale` `peek`(움직일 때 올라오는 높이, 18) `revealMs`(멈춘 뒤 일어나는 시간, 360)
+`idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `ticksEvery` `label`.
 
 ## 입력 정책
 
