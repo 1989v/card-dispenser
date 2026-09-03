@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>card-dispenser demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/card-dispenser@0.1.0/dist/card-dispenser.css">
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font: 16px/1.6 ui-sans-serif, system-ui, sans-serif; background: #f9f8f2; color: #1d1d1f; }
+    @media (prefers-color-scheme: dark) { body { background: #131313; color: #e5e2e1; } }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+    h1 { font-size: 1.75rem; letter-spacing: -.02em; margin: 0 0 8px; }
+    p { max-width: 60ch; }
+    .stage { position: relative; aspect-ratio: 16 / 10; background: #1d1d1f; border: 1px solid rgb(179 139 109 / .3); border-radius: 0 8px 0 8px; overflow: hidden; margin: 24px 0 12px; }
+    #dispenser { position: absolute; inset: 8px 0 34px; }
+    .bar { position: absolute; left: 16px; right: 16px; bottom: 10px; display: flex; justify-content: space-between; font: 12px ui-monospace, monospace; color: #b38b6d; }
+    .btn { position: absolute; right: 16px; bottom: 44px; min-height: 44px; padding: 0 16px; border: 1px solid rgb(179 139 109 / .5); border-radius: 4px; background: rgb(10 10 10 / .6); color: #f9f8f2; font: 600 12px ui-monospace, monospace; cursor: pointer; }
+    .btn:disabled { opacity: .5; }
+    .pick { border-top: 1px solid rgb(128 128 128 / .3); border-bottom: 1px solid rgb(128 128 128 / .3); padding: 12px 0; }
+    .pick b { font-size: 1.25rem; }
+    .pick span { font: 12px ui-monospace, monospace; opacity: .7; margin-left: 10px; }
+    .spacer { height: 40vh; }
+    code { font-family: ui-monospace, monospace; font-size: .9em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>card-dispenser</h1>
+    <p>48 cards on a drum. Scroll (desktop) or drag to rotate; press <b>spin</b> to land on one. Arrow keys work when the drum is focused.</p>
+    <div class="spacer"></div>
+    <section id="section">
+      <div class="stage">
+        <div id="dispenser"></div>
+        <button class="btn" id="spin" type="button">spin ↻</button>
+        <div class="bar"><span>demo</span><span id="count">48 cards · 5 rendered</span></div>
+      </div>
+      <div class="pick"><b id="title">—</b><span id="meta"></span></div>
+    </section>
+    <div class="spacer"></div>
+    <p><code>npm i card-dispenser</code> · <a href="https://github.com/1989v/card-dispenser">GitHub</a> · <a href="https://www.npmjs.com/package/card-dispenser">npm</a></p>
+  </div>
+  <script type="module">
+    import { createDispenser, escapeHtml } from 'https://unpkg.com/card-dispenser@0.1.0/dist/index.js';
+    const kinds = ['history', 'nature', 'culture', 'leisure'];
+    const hues = [18, 84, 150, 205, 262, 330];
+    const items = Array.from({ length: 48 }, (_, i) => ({ title: `Card ${String(i + 1).padStart(2, '0')}`, kind: kinds[i % kinds.length], hue: hues[i % hues.length] }));
+    const host = document.getElementById('dispenser');
+    const coarse = matchMedia('(pointer: coarse)').matches;
+    const show = (it, i) => { document.getElementById('title').textContent = it.title; document.getElementById('meta').textContent = `${it.kind} · #${i + 1}`; };
+    const d = createDispenser(host, {
+      items,
+      pullScale: coarse ? 0.32 : 0.1,
+      render: (it) => `<div class="cd-photo" style="background: linear-gradient(135deg, hsl(${it.hue} 40% 62%), hsl(${it.hue} 50% 38%))"></div><div class="cd-body"><span class="cd-seal">${escapeHtml(it.kind)}</span><b class="cd-title">${escapeHtml(it.title)}</b><span class="cd-meta">demo · ${escapeHtml(it.kind)}</span></div>`,
+      onChange: show,
+    });
+    if (!coarse) {
+      const section = document.getElementById('section');
+      const scrub = () => { const r = section.getBoundingClientRect(); const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight + r.height))); d.setAngle(-p * 110); };
+      addEventListener('scroll', scrub, { passive: true }); scrub();
+    }
+    const btn = document.getElementById('spin');
+    btn.addEventListener('click', () => { btn.disabled = true; d.spinTo('random').then(() => { btn.disabled = false; }); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "name": "card-dispenser",
+  "version": "0.1.0",
+  "description": "A rotating card dispenser: cards stand edge-on around a drum, the one that reaches the front rises to face you. Scroll-scrub, drag, keyboard, and a spin-to-pick that lands on one item. Zero dependencies, CSS 3D.",
+  "keywords": [
+    "card",
+    "dispenser",
+    "carousel",
+    "3d",
+    "css-3d",
+    "rolodex",
+    "random-pick",
+    "picker",
+    "roulette",
+    "scroll-driven",
+    "vanilla",
+    "zero-dependency"
+  ],
+  "homepage": "https://github.com/1989v/card-dispenser#readme",
+  "bugs": {
+    "url": "https://github.com/1989v/card-dispenser/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1989v/card-dispenser.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "style": "./dist/card-dispenser.css",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./card-dispenser.css": "./dist/card-dispenser.css",
+    "./style.css": "./dist/card-dispenser.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify && cp src/card-dispenser.css dist/card-dispenser.css",
+    "test": "vitest run",
+    "no-deps": "node scripts/no-deps.mjs",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {}
+}
