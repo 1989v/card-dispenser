@@ -88,8 +88,11 @@ Callbacks: `onChange(item, i)` when the front card changes (quiet during a spin)
 fully revealed front card is tapped, clicked, or activated with Enter / Space. A drag that ends on the card is not an activation.
 | `destroy()` | Remove everything and listeners. |
 
-Options: `items` `render` `onChange` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
-`pullScale` `peek` `revealMs` `idleMs` `dwell` `ticksEvery` `label`. Defaults are tuned for a 520–600 px wide host.
+Options: `items` `render` `onChange` `onActivate` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
+`pullScale` `peek` `revealMs` `idleMs` `dwell` `ticksEvery` `lite` `nearSteps` `label`. Defaults are tuned for a 520–600 px wide host.
+`lite: true` is for touch devices: cards more than `nearSteps` (7) slots from the front keep only the face that is
+visible and one edge — two elements instead of five. Every card is five 3D-transformed elements, i.e. five compositor
+layers, and a drum of 80 cards measured 400+ layers on a phone; cap the item count there too (40 works).
 `peek` (18 px) is how far a passing card nudges up while the drum moves; `revealMs` (360) is the rise once it
 stops; `idleMs` (260) is how long `setAngle` must stay quiet before the drum counts as stopped.
 

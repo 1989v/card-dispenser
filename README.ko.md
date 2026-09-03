@@ -65,7 +65,9 @@ d.destroy();
 | `destroy()` | 전부 치운다 |
 
 옵션: `radius` `cardW` `cardH` `tilt` `lift` `forward` `pullScale` `peek`(움직일 때 올라오는 높이, 18) `revealMs`(멈춘 뒤 일어나는 시간, 360)
-`idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `ticksEvery` `label`.
+`idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `ticksEvery` `lite` `nearSteps` `label`.
+`lite: true` 는 터치 기기용이다. 정면에서 `nearSteps`(7)칸 밖의 카드는 보이는 면 하나와 옆면 하나, 요소 둘만 남긴다.
+카드 한 장이 3D 요소 다섯 개 = 컴포지터 레이어 다섯 개라 80장짜리 판이 폰에서 400 레이어를 넘겼다 — 거기서는 장수도 줄인다(40장이면 된다).
 
 ## 입력 정책
 
