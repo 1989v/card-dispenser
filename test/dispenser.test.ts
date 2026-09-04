@@ -125,16 +125,29 @@ describe('createDispenser', () => {
 
   it('setAngle 로 움직이는 동안은 살짝 올라오기만 하고, 조용해지면 일어난다', () => {
     vi.useFakeTimers();
-    const { host, d } = make();
+    // 높이는 기본값이 아니라 넘긴 값으로 판정한다 — 기본값을 바꿨다고 검사가 깨지면 재는 게 아니라 베끼는 것이다
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const d = createDispenser(host, {
+      items,
+      minCards: 24,
+      revealMs: 0,
+      idleMs: 50,
+      peek: 20,
+      lift: 60,
+      render: (it, i) => `<b>${it}-${i}</b>`,
+    });
     d.setAngle(-(360 / 24) * 3);
     const f = front(host);
     expect(f.classList.contains('is-peek')).toBe(true);
     expect(f.classList.contains('is-out')).toBe(false);
     expect(rotY(f)).toBeCloseTo(0, 1); // 얼굴을 돌리지 않는다
-    expect(f.style.transform).toContain('translateY(-18.00px)'); // peek 만큼만
+    expect(f.style.transform).toContain('translateY(-20.00px)'); // peek 만큼만 (lift 60 이 아니라)
     vi.advanceTimersByTime(60);
-    expect(front(host).classList.contains('is-out')).toBe(true);
-    expect(rotY(front(host))).toBeCloseTo(-90, 1);
+    const out = front(host);
+    expect(out.classList.contains('is-out')).toBe(true);
+    expect(out.style.transform).toContain('translateY(-60.00px)'); // 멈추면 lift 까지
+    expect(rotY(out)).toBeCloseTo(-90, 1);
   });
 
   it('spinTo 는 멈춘 카드가 일어난 뒤에 끝난다', async () => {

@@ -34,13 +34,16 @@ export interface DispenserOptions<T> {
   lift?: number;
   forward?: number;
   pullScale?: number;
-  /** 판이 움직이는 동안 정면 카드가 덱에서 살짝 올라오는 높이(px) */
+  /**
+   * 판이 움직이는 동안 정면 부근 카드가 덱에서 올라오는 높이(px).
+   * 완전히 일어난 높이([lift])의 절반을 넘지 않게 둔다 — 넘으면 「지나가는 중」과 「뽑혔다」가 안 갈린다.
+   */
   peek?: number;
   /**
    * peek 이 걸리는 폭(칸 수). 정면 ±이만큼의 카드가 함께 올라왔다 내려간다.
    *
-   * 이 값이 작으면 한 번에 한 장만 올라오는데, 스핀은 한 칸을 수십 ms 만에 지나가므로 **눈에 안 보인다**
-   * (실측: 스핀 중 올라온 카드 중앙값 1장). 여러 장이 함께 올라와야 물결이 판을 도는 것으로 읽힌다.
+   * 이 값이 작으면 한 번에 한두 장만 올라오는데, 스핀은 한 칸을 수십 ms 만에 지나가므로 **눈에 잘 안 띈다**
+   * (실측: 0.5칸이면 중앙값 1장, 2.4칸이면 4장, 4칸이면 7장). 여러 장이 함께 올라와야 물결이 판을 도는 것으로 읽힌다.
    */
   peekSpread?: number;
   /** 멈춘 뒤 완전히 일어나는 데 걸리는 시간(ms). 0 이면 즉시 */
@@ -90,11 +93,11 @@ const DEFAULTS = {
   lift: 54,
   forward: 96,
   pullScale: 0.1,
-  peek: 18,
+  peek: 32,
   revealMs: 360,
   idleMs: 260,
   dwell: 0.6,
-  peekSpread: 2.4,
+  peekSpread: 4,
   photoSteps: 2,
   ticksEvery: 'auto' as number | 'auto',
   lite: false,
