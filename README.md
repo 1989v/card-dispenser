@@ -89,7 +89,14 @@ fully revealed front card is tapped, clicked, or activated with Enter / Space. A
 | `destroy()` | Remove everything and listeners. |
 
 Options: `items` `render` `onChange` `onActivate` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
-`pullScale` `peek` `revealMs` `idleMs` `dwell` `ticksEvery` `lite` `nearSteps` `label`. Defaults are tuned for a 520–600 px wide host.
+`pullScale` `peek` `peekSpread` `revealMs` `idleMs` `dwell` `photoSteps` `ticksEvery` `lite` `nearSteps` `label`.
+Defaults are tuned for a 520–600 px wide host.
+
+**Images cost more than anything else on the drum.** A spin passes every card through the front, so anything the
+face renders eagerly gets fetched — a 40-card drum measured 18 images at rest and 49 after one spin. Render the
+picture as `<div class="cd-photo" data-src="…">` instead of setting the URL: the drum attaches it only for cards
+within `photoSteps` (2) of the front, and only once the drum has stopped. Cards standing edge-on never show their
+picture anyway.
 `lite: true` is for touch devices: cards more than `nearSteps` (7) slots from the front keep only the face that is
 visible and one edge — two elements instead of five. Every card is five 3D-transformed elements, i.e. five compositor
 layers, and a drum of 80 cards measured 400+ layers on a phone; cap the item count there too (40 works).

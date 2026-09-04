@@ -65,7 +65,15 @@ d.destroy();
 | `destroy()` | 전부 치운다 |
 
 옵션: `radius` `cardW` `cardH` `tilt` `lift` `forward` `pullScale` `peek`(움직일 때 올라오는 높이, 18) `revealMs`(멈춘 뒤 일어나는 시간, 360)
-`idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `ticksEvery` `lite` `nearSteps` `label`.
+`peekSpread`(peek 이 걸리는 폭, 2.4칸) `idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `photoSteps`(2) `ticksEvery`
+`lite` `nearSteps` `label`.
+
+**그림이 가장 비싸다.** 판이 돌면 모든 카드가 정면을 지나므로, 얼굴에 주소를 그대로 박으면 스핀 한 번에 전부 내려받는다
+(실측: 40장 판에서 멈춰 있을 때 18장 → 스핀 뒤 49장). 주소 대신 `<div class="cd-photo" data-src="…">` 로 두면
+정면 ±`photoSteps`(2) 칸에 들어오고 **판이 멈춘 뒤에야** 붙는다. 옆으로 선 카드의 그림은 어차피 보이지 않는다.
+
+`peek` 은 **여러 장에 걸쳐** 걸린다(`peekSpread`). 한 장만 올라오게 두면 스핀이 한 칸을 수십 ms 만에 지나가
+눈에 안 보인다 — 물결이 판을 도는 것으로 읽혀야 뽑히는 과정이 보인다.
 `lite: true` 는 터치 기기용이다. 정면에서 `nearSteps`(7)칸 밖의 카드는 보이는 면 하나와 옆면 하나, 요소 둘만 남긴다.
 카드 한 장이 3D 요소 다섯 개 = 컴포지터 레이어 다섯 개라 80장짜리 판이 폰에서 400 레이어를 넘겼다 — 거기서는 장수도 줄인다(40장이면 된다).
 
