@@ -1,6 +1,6 @@
 {
   "name": "card-dispenser",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A rotating card dispenser: cards stand edge-on around a drum, the one that reaches the front rises to face you. Scroll-scrub, drag, keyboard, and a spin-to-pick that lands on one item. Zero dependencies, CSS 3D.",
   "keywords": [
     "card",
@@ -56,6 +56,5 @@
     "tsup": "^8.3.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
-  },
-  "dependencies": {}
+  }
 }

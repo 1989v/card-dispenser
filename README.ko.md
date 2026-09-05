@@ -64,8 +64,9 @@ d.destroy();
 | `onActivate(item, i)` (옵션) | 완전히 일어난 정면 카드를 탭·클릭하거나 Enter/Space. 끌다 놓은 것은 아니다 |
 | `destroy()` | 전부 치운다 |
 
-옵션: `radius` `cardW` `cardH` `tilt` `lift` `forward` `pullScale` `peek`(움직일 때 올라오는 높이, 18) `revealMs`(멈춘 뒤 일어나는 시간, 360)
-`peekSpread`(peek 이 걸리는 폭, 2.4칸) `idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `photoSteps`(2) `ticksEvery`
+옵션: `radius` `cardW` `cardH` `tilt`(내려다보는 각, 18) `tiltMin` `tiltMax` `tiltDrag` `lift` `forward`
+`pullScale` `peek`(움직일 때 올라오는 높이, 32) `revealMs`(멈춘 뒤 일어나는 시간, 360)
+`peekSpread`(peek 이 걸리는 폭, 4칸) `idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `photoSteps`(2) `ticksEvery`
 `lite` `nearSteps` `label`.
 
 **그림이 가장 비싸다.** 판이 돌면 모든 카드가 정면을 지나므로, 얼굴에 주소를 그대로 박으면 스핀 한 번에 전부 내려받는다

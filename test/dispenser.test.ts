@@ -226,6 +226,42 @@ describe('createDispenser', () => {
     expect(pending + 5).toBe(host.querySelectorAll('.cd-photo').length);
   });
 
+  it('각은 범위 안으로 잘리고, 일어난 카드의 자세도 따라 바뀐다', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const d = createDispenser(host, { items, minCards: 24, revealMs: 0, tilt: 20, tiltMin: 6, tiltMax: 40, render: (it) => it });
+    expect(host.style.getPropertyValue('--cd-tilt')).toBe('20.00deg');
+    expect(front(host).style.transform).toContain('rotateX(20.00deg)');
+
+    d.setTilt(9);
+    expect(host.style.getPropertyValue('--cd-tilt')).toBe('9.00deg');
+    expect(front(host).style.transform).toContain('rotateX(9.00deg)'); // 일어난 카드가 새 각을 쓴다
+
+    d.setTilt(200);
+    expect(host.style.getPropertyValue('--cd-tilt')).toBe('40.00deg'); // 위쪽으로 잘림
+    d.setTilt(-50);
+    expect(host.style.getPropertyValue('--cd-tilt')).toBe('6.00deg'); // 아래쪽으로 잘림
+  });
+
+  it('세로로 끌면 각이 바뀐다 (tiltDrag 를 끄면 안 바뀐다)', () => {
+    const drag = (host: HTMLElement, dy: number) => {
+      host.dispatchEvent(new PointerEvent('pointerdown', { button: 0, clientX: 100, clientY: 100, bubbles: true }));
+      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 100, clientY: 100 + dy, bubbles: true }));
+      window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+    };
+    const on = document.createElement('div');
+    document.body.appendChild(on);
+    createDispenser(on, { items, minCards: 24, revealMs: 0, tilt: 20, render: (it) => it });
+    drag(on, 60); // 아래로 끌면 위에서 내려다본다
+    expect(parseFloat(on.style.getPropertyValue('--cd-tilt'))).toBeGreaterThan(20);
+
+    const off = document.createElement('div');
+    document.body.appendChild(off);
+    createDispenser(off, { items, minCards: 24, revealMs: 0, tilt: 20, tiltDrag: false, render: (it) => it });
+    drag(off, 60);
+    expect(off.style.getPropertyValue('--cd-tilt')).toBe('20.00deg');
+  });
+
   it('빈 목록은 만들 수 없다', () => {
     const host = document.createElement('div');
     expect(() => createDispenser(host, { items: [], render: () => '' })).toThrow();

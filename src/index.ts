@@ -28,8 +28,15 @@ export interface DispenserOptions<T> {
   radius?: number;
   cardW?: number;
   cardH?: number;
-  /** 내려다보는 각(도). 양수 */
+  /**
+   * 판을 내려다보는 각(도). 클수록 위에서 본다. 0 에 가까우면 옆에서 보게 되어 카드가 겹쳐 안 읽힌다.
+   * 세로로 끌면 [tiltMin]~[tiltMax] 사이에서 이 값이 바뀐다 ([tiltDrag]).
+   */
   tilt?: number;
+  tiltMin?: number;
+  tiltMax?: number;
+  /** 세로로 끌어 각을 바꿀 수 있게 한다. 터치 기기에서는 꺼 둔다 — 세로 제스처는 페이지 스크롤의 몫이다 */
+  tiltDrag?: boolean;
   /** 완전히 일어났을 때 올라오는 높이 · 앞으로 나오는 거리(px) · 커지는 비율 */
   lift?: number;
   forward?: number;
@@ -74,6 +81,8 @@ export interface DispenserOptions<T> {
 export interface Dispenser<T> {
   /** 스크롤 등 바깥이 주는 각. offset 과 더해져 드럼 각이 된다. 바뀌면 카드가 내려앉고, idleMs 뒤 다시 일어난다 */
   setAngle(deg: number): void;
+  /** 내려다보는 각을 바꾼다 (tiltMin~tiltMax 로 잘린다). 세로 드래그가 부르는 것과 같은 문 */
+  setTilt(deg: number): void;
   rotateBy(deg: number): Promise<void>;
   /** 가장 가까운 카드를 정면에 세우고 일으킨다 (드래그를 놓았을 때) */
   snap(): Promise<void>;
@@ -89,7 +98,10 @@ const DEFAULTS = {
   radius: 130,
   cardW: 96,
   cardH: 128,
-  tilt: 26,
+  tilt: 18,
+  tiltMin: 6,
+  tiltMax: 40,
+  tiltDrag: true,
   lift: 54,
   forward: 96,
   pullScale: 0.1,
@@ -158,7 +170,9 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
   host.style.setProperty('--cd-r', `${o.radius}px`);
   host.style.setProperty('--cd-w', `${o.cardW}px`);
   host.style.setProperty('--cd-h', `${o.cardH}px`);
-  host.style.setProperty('--cd-tilt', `${o.tilt}deg`);
+  let tiltNow = Math.min(o.tiltMax, Math.max(o.tiltMin, o.tilt));
+  const applyTilt = () => host.style.setProperty('--cd-tilt', `${tiltNow.toFixed(2)}deg`);
+  applyTilt();
   host.setAttribute('tabindex', '0');
   host.setAttribute('role', 'listbox');
   host.setAttribute('aria-label', o.label);
@@ -271,7 +285,7 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
           lift === 0 && r === 0
             ? restTf[slot]
             : `${restTf[slot]} translateY(${(-lift).toFixed(2)}px) rotateY(${(-90 * r).toFixed(2)}deg) ` +
-              `rotateX(${(o.tilt * r).toFixed(2)}deg) translateZ(${(o.forward * r).toFixed(2)}px) ` +
+              `rotateX(${(tiltNow * r).toFixed(2)}deg) translateZ(${(o.forward * r).toFixed(2)}px) ` +
               `scale(${(1 + o.pullScale * r).toFixed(3)})`;
         if (tf !== lastTf[slot]) {
           lastTf[slot] = tf;
@@ -303,6 +317,16 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
       count.textContent = `${pad(best % n)} / ${n}`;
       if (!quiet) o.onChange?.(itemAt(best), best % n);
     }
+  };
+
+  /** 각을 바꾼다. 범위를 벗어나면 잘라 넣는다 */
+  const setTiltTo = (deg: number) => {
+    const next = Math.min(o.tiltMax, Math.max(o.tiltMin, deg));
+    if (next === tiltNow) return;
+    tiltNow = next;
+    applyTilt();
+    // 캐시는 비우지 않아도 된다 — 각이 들어가는 것은 일어난 카드의 transform 뿐이고,
+    // 그 카드는 매 프레임 문자열을 다시 만들어 값이 다르면 쓴다. 제자리 자세에는 각이 없다.
   };
 
   const fit = () => host.style.setProperty('--cd-s', Math.max(0.66, Math.min(1, host.clientWidth / 520)).toFixed(3));
@@ -387,6 +411,10 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
   };
 
   const api: Dispenser<T> = {
+    setTilt(deg) {
+      setTiltTo(deg);
+      layout();
+    },
     setAngle(a) {
       if (a === angle) return;
       angle = a;
@@ -434,16 +462,19 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
   };
 
   // 드래그 — 가로로 끌면 돌고, 놓으면 가장 가까운 카드에 맞춰 세운다. 세로 스크롤은 그대로(touch-action: pan-y)
-  let drag: { x: number; o: number; moved: boolean } | null = null;
+  let drag: { x: number; y: number; o: number; t: number; moved: boolean } | null = null;
   const onMove = (e: PointerEvent) => {
     if (!drag) return;
     const dx = e.clientX - drag.x;
-    if (Math.abs(dx) > 4 && !drag.moved) {
+    const dy = e.clientY - drag.y;
+    if (!drag.moved && (Math.abs(dx) > 4 || (o.tiltDrag && Math.abs(dy) > 6))) {
       drag.moved = true;
       unsettle();
     }
     if (!drag.moved) return;
     offset = drag.o + dx * 0.45;
+    // 위로 끌면 눕고(각 작아짐), 아래로 끌면 위에서 내려다본다
+    if (o.tiltDrag) setTiltTo(drag.t + dy * 0.16);
     layout();
   };
   const activate = () => {
@@ -464,7 +495,7 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
   };
   host.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || quiet) return; // 스핀 중에는 잡지 않는다 — 끊으면 멈춘 자리에서 일어나지 못한다
-    drag = { x: e.clientX, o: offset, moved: false };
+    drag = { x: e.clientX, y: e.clientY, o: offset, t: tiltNow, moved: false };
     stopAnim();
   });
   addEventListener('pointermove', onMove, { passive: true });

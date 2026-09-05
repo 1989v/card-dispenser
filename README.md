@@ -88,9 +88,13 @@ Callbacks: `onChange(item, i)` when the front card changes (quiet during a spin)
 fully revealed front card is tapped, clicked, or activated with Enter / Space. A drag that ends on the card is not an activation.
 | `destroy()` | Remove everything and listeners. |
 
-Options: `items` `render` `onChange` `onActivate` `minCards` `radius` `cardW` `cardH` `tilt` `lift` `forward`
-`pullScale` `peek` `peekSpread` `revealMs` `idleMs` `dwell` `photoSteps` `ticksEvery` `lite` `nearSteps` `label`.
-Defaults are tuned for a 520–600 px wide host.
+Options: `items` `render` `onChange` `onActivate` `minCards` `radius` `cardW` `cardH` `tilt` `tiltMin` `tiltMax`
+`tiltDrag` `lift` `forward` `pullScale` `peek` `peekSpread` `revealMs` `idleMs` `dwell` `photoSteps` `ticksEvery`
+`lite` `nearSteps` `label`. Defaults are tuned for a 520–600 px wide host.
+
+**Grab it and turn it.** Dragging sideways spins the drum; dragging up and down changes how far above it you
+stand (`tilt`, 18° by default, clamped to `tiltMin`–`tiltMax`), and `setTilt(deg)` does the same from code.
+Turn `tiltDrag` off on touch devices — there a vertical gesture belongs to the page, not to the drum.
 
 **Images cost more than anything else on the drum.** A spin passes every card through the front, so anything the
 face renders eagerly gets fetched — a 40-card drum measured 18 images at rest and 49 after one spin. Render the
