@@ -3,64 +3,248 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>card-dispenser demo</title>
+  <title>card-dispenser — tune the wave</title>
   <link rel="stylesheet" href="./lib/card-dispenser.css">
   <style>
-    :root { color-scheme: light dark; }
-    body { margin: 0; font: 16px/1.6 ui-sans-serif, system-ui, sans-serif; background: #f9f8f2; color: #1d1d1f; }
-    @media (prefers-color-scheme: dark) { body { background: #131313; color: #e5e2e1; } }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
-    h1 { font-size: 1.75rem; letter-spacing: -.02em; margin: 0 0 8px; }
-    p { max-width: 60ch; }
-    .stage { position: relative; aspect-ratio: 16 / 10; background: #1d1d1f; border: 1px solid rgb(179 139 109 / .3); border-radius: 0 8px 0 8px; overflow: hidden; margin: 24px 0 12px; }
-    #dispenser { position: absolute; inset: 8px 0 34px; }
-    .bar { position: absolute; left: 16px; right: 16px; bottom: 10px; display: flex; justify-content: space-between; font: 12px ui-monospace, monospace; color: #b38b6d; }
-    .btn { position: absolute; right: 16px; bottom: 44px; min-height: 44px; padding: 0 16px; border: 1px solid rgb(179 139 109 / .5); border-radius: 4px; background: rgb(10 10 10 / .6); color: #f9f8f2; font: 600 12px ui-monospace, monospace; cursor: pointer; }
-    .btn:disabled { opacity: .5; }
-    .pick { border-top: 1px solid rgb(128 128 128 / .3); border-bottom: 1px solid rgb(128 128 128 / .3); padding: 12px 0; }
-    .pick b { font-size: 1.25rem; }
-    .pick span { font: 12px ui-monospace, monospace; opacity: .7; margin-left: 10px; }
-    .spacer { height: 40vh; }
-    code { font-family: ui-monospace, monospace; font-size: .9em; }
+    :root {
+      color-scheme: light dark;
+      --paper: #f9f8f2; --ink: #1d1d1f; --ink-2: #4a4a4d; --ocher: #b38b6d; --ocher-text: #8a6346;
+      --blue: #2b4b63; --line: rgb(29 29 31 / .14); --panel: #efece2; --stage: #17171a; --grid: rgb(29 29 31 / .1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0e0e0f; --ink: #e8e4dc; --ink-2: #a9a49b; --ocher-text: #c2a184;
+        --blue: #7fa8c4; --line: rgb(232 228 220 / .16); --panel: #17171a; --stage: #0a0a0b; --grid: rgb(232 228 220 / .12);
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink);
+           font: 15px/1.65 ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 72px; }
+    .mono, .eyebrow, button, .tag, table, figcaption, .knob label, .readout { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .eyebrow { font-size: .6875rem; letter-spacing: .14em; color: var(--ocher-text); text-transform: uppercase; }
+    h1 { font-size: 1.6rem; letter-spacing: -.02em; margin: 6px 0 8px; text-wrap: balance; }
+    .lede { color: var(--ink-2); max-width: 64ch; margin: 0 0 24px; }
+    a { color: var(--blue); }
+    .pair { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 760px) { .pair { grid-template-columns: 1fr 1fr; } }
+    .rig { border: 1px solid var(--line); border-radius: 0 10px 0 10px; overflow: hidden; background: var(--panel); }
+    .rig > header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+    .rig h2 { font-size: .9375rem; margin: 0; }
+    .tag { font-size: .6875rem; color: var(--ocher-text); }
+    .stage { position: relative; aspect-ratio: 4 / 3; background: var(--stage); }
+    .stage > div { position: absolute; inset: 0; }
+    .readout { display: flex; gap: 18px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: .75rem; color: var(--ink-2); }
+    .readout b { color: var(--ink); }
+    .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0 20px; }
+    button { font: 600 .8125rem ui-monospace, monospace; color: var(--ink); background: transparent;
+             border: 1px solid var(--line); border-radius: 0 6px 0 6px; padding: 9px 14px; min-height: 40px; cursor: pointer; }
+    button:hover { border-color: var(--ocher); }
+    button[aria-pressed="true"] { background: var(--ocher); border-color: var(--ocher); color: #1d1d1f; }
+    .panel { border: 1px solid var(--line); border-radius: 0 10px 0 10px; padding: 18px; background: var(--panel); margin-top: 18px; }
+    .knobs { display: grid; gap: 16px; }
+    @media (min-width: 640px) { .knobs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .knob label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .75rem; color: var(--ink-2); }
+    .knob label b { color: var(--ink); font-size: .875rem; font-variant-numeric: tabular-nums; }
+    .knob input { width: 100%; margin: 8px 0 2px; accent-color: var(--ocher); }
+    .knob p { margin: 0; font-size: .75rem; color: var(--ink-2); font-family: ui-sans-serif, system-ui, sans-serif; }
+    svg { display: block; width: 100%; height: auto; }
+    figure { margin: 22px 0 0; }
+    figcaption { font-size: .6875rem; color: var(--ink-2); margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: .75rem; }
+    th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--ocher-text); font-weight: 600; letter-spacing: .06em; }
+    pre { background: var(--panel); border: 1px solid var(--line); border-radius: 0 8px 0 8px; padding: 12px 14px; overflow-x: auto; font-size: .8125rem; }
+    .foot { color: var(--ink-2); font-size: .8125rem; margin-top: 26px; }
+    .cd-photo { background: linear-gradient(150deg, var(--f1), var(--f2)); }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>card-dispenser</h1>
-    <p>48 cards on a drum. Scroll (desktop) or drag to rotate; press <b>spin</b> to land on one. Arrow keys work when the drum is focused.</p>
-    <div class="spacer"></div>
-    <section id="section">
-      <div class="stage">
-        <div id="dispenser"></div>
-        <button class="btn" id="spin" type="button">spin ↻</button>
-        <div class="bar"><span>demo</span><span id="count">48 cards · drag · ← → · spin</span></div>
+    <span class="eyebrow">card-dispenser</span>
+    <h1>Tune the wave</h1>
+    <p class="lede">
+      Cards stand edge-on around a drum. While it turns, the ones near the front rise and settle back; when it
+      stops, exactly one stands up to face you. How wide that wave reaches and how fast its shoulders fall are
+      yours to set — drag the sliders and watch both drums, which always turn together.
+    </p>
+
+    <div class="bar">
+      <button id="turn" type="button" aria-pressed="false">turn slowly</button>
+      <button id="spin" type="button">spin to pick</button>
+      <button data-preset="46,4,4" type="button">defaults</button>
+      <button data-preset="32,4,1" type="button">even hill</button>
+      <button data-preset="34,3,2.6" type="button">narrow</button>
+    </div>
+
+    <div class="pair">
+      <section class="rig">
+        <header><h2>defaults</h2><span class="tag">46 · 4.0 · 4.0</span></header>
+        <div class="stage"><div id="drumA"></div></div>
+        <div class="readout"><span>lifted <b id="cntA">0</b></span><span>crest <b id="maxA">0</b>px</span></div>
+      </section>
+      <section class="rig">
+        <header><h2>yours</h2><span class="tag" id="tagB">46 · 4.0 · 4.0</span></header>
+        <div class="stage"><div id="drumB"></div></div>
+        <div class="readout"><span>lifted <b id="cntB">0</b></span><span>crest <b id="maxB">0</b>px</span></div>
+      </section>
+    </div>
+
+    <div class="panel">
+      <div class="knobs">
+        <div class="knob">
+          <label for="k1">peek <b><span id="v1">46</span>px</b></label>
+          <input id="k1" type="range" min="18" max="52" step="1" value="46">
+          <p>How far a passing card rises. A fully revealed card stands at <code>lift</code> (54px) and also turns to face you.</p>
+        </div>
+        <div class="knob">
+          <label for="k2">peekSpread <b><span id="v2">4.0</span></b></label>
+          <input id="k2" type="range" min="1.5" max="6" step="0.1" value="4">
+          <p>How many slots either side join in. Narrow it and fewer cards move at once.</p>
+        </div>
+        <div class="knob">
+          <label for="k3">peekCurve <b><span id="v3">4.0</span></b></label>
+          <input id="k3" type="range" min="1" max="6" step="0.1" value="4">
+          <p>1 is a symmetric hill. Raise it and the shoulders drop away first, leaving the crest alone.</p>
+        </div>
       </div>
-      <div class="pick"><b id="title">—</b><span id="meta"></span></div>
-    </section>
-    <div class="spacer"></div>
-    <p><code>npm i card-dispenser</code> · <a href="https://github.com/1989v/card-dispenser">GitHub</a> · <a href="https://www.npmjs.com/package/card-dispenser">npm</a></p>
+
+      <figure>
+        <svg id="chart" viewBox="0 0 640 190" role="img" aria-label="Lift height by distance from the front slot"></svg>
+        <figcaption>One dot is one card. Across: slots from the front. Up: how far it has risen.</figcaption>
+      </figure>
+
+      <table>
+        <thead><tr><th>from front</th><th>defaults</th><th>yours</th></tr></thead>
+        <tbody id="tbl"></tbody>
+      </table>
+
+      <pre id="code"></pre>
+    </div>
+
+    <p class="foot">
+      <code>npm i card-dispenser</code> · <a href="https://github.com/1989v/card-dispenser">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/card-dispenser">npm</a> · Zero dependencies, CSS 3D.
+      Drag sideways to turn the drum, up and down to change how far above it you stand.
+    </p>
   </div>
+
   <script type="module">
-    import { createDispenser, escapeHtml } from './lib/index.js';
-    const kinds = ['history', 'nature', 'culture', 'leisure'];
-    const hues = [18, 84, 150, 205, 262, 330];
-    const items = Array.from({ length: 48 }, (_, i) => ({ title: `Card ${String(i + 1).padStart(2, '0')}`, kind: kinds[i % kinds.length], hue: hues[i % hues.length] }));
-    const host = document.getElementById('dispenser');
+    import { createDispenser, peekAmount } from './lib/index.js';
+
+    const KINDS = ['nature', 'history', 'culture', 'leisure'];
+    const HUES = [[210, 34], [26, 42], [150, 30], [268, 30]];
+    const items = Array.from({ length: 40 }, (_, i) => ({ kind: KINDS[i % 4], hue: HUES[i % 4] }));
+    const render = (it, i) => {
+      const [h, s] = it.hue;
+      return `<div class="cd-photo" style="--f1:hsl(${h} ${s}% 62%);--f2:hsl(${h} ${s}% 34%)"></div>` +
+        `<div class="cd-body"><span class="cd-seal">${it.kind}</span>` +
+        `<b class="cd-title">Card ${String(i + 1).padStart(2, '0')}</b>` +
+        `<span class="cd-meta">demo · ${it.kind}</span></div>`;
+    };
+
+    const BASE = { peek: 46, spread: 4, curve: 4 };
+    const opts = { ...BASE };
     const coarse = matchMedia('(pointer: coarse)').matches;
-    const show = (it, i) => { document.getElementById('title').textContent = it.title; document.getElementById('meta').textContent = `${it.kind} · #${i + 1}`; };
-    const d = createDispenser(host, {
-      items,
-      pullScale: coarse ? 0.32 : 0.1,
-      render: (it) => `<div class="cd-photo" style="background: linear-gradient(135deg, hsl(${it.hue} 40% 62%), hsl(${it.hue} 50% 38%))"></div><div class="cd-body"><span class="cd-seal">${escapeHtml(it.kind)}</span><b class="cd-title">${escapeHtml(it.title)}</b><span class="cd-meta">demo · ${escapeHtml(it.kind)}</span></div>`,
-      onChange: show,
+    const mk = (host, o) => createDispenser(host, {
+      items, render, peek: o.peek, peekSpread: o.spread, peekCurve: o.curve, tiltDrag: !coarse, label: 'demo drum',
     });
-    if (!coarse) {
-      const section = document.getElementById('section');
-      const scrub = () => { const r = section.getBoundingClientRect(); const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight + r.height))); d.setAngle(-p * 110); };
-      addEventListener('scroll', scrub, { passive: true }); scrub();
+
+    let A = mk(document.getElementById('drumA'), BASE);
+    let B = mk(document.getElementById('drumB'), opts);
+
+    const LIFT = /translateY\((-?[\d.]+)px\)\s+rotateY/;
+    const measure = (hostId, cntId, maxId) => {
+      let n = 0, m = 0;
+      for (const el of document.getElementById(hostId).querySelectorAll('.cd-card')) {
+        const hit = LIFT.exec(el.style.transform);
+        const v = hit ? -parseFloat(hit[1]) : 0;
+        if (v > 2) n++;
+        if (v > m) m = v;
+      }
+      document.getElementById(cntId).textContent = String(n);
+      document.getElementById(maxId).textContent = m.toFixed(0);
+    };
+    const readBoth = () => { measure('drumA', 'cntA', 'maxA'); measure('drumB', 'cntB', 'maxB'); };
+
+    let angle = 0, turning = false, raf = 0;
+    const loop = () => { angle -= 0.34; A.setAngle(angle); B.setAngle(angle); readBoth(); if (turning) raf = requestAnimationFrame(loop); };
+    const turnBtn = document.getElementById('turn');
+    turnBtn.addEventListener('click', () => {
+      turning = !turning;
+      turnBtn.setAttribute('aria-pressed', String(turning));
+      turnBtn.textContent = turning ? 'stop' : 'turn slowly';
+      if (turning) raf = requestAnimationFrame(loop); else cancelAnimationFrame(raf);
+    });
+    document.getElementById('spin').addEventListener('click', () => {
+      const i = Math.floor(Math.random() * items.length);
+      A.spinTo(i); B.spinTo(i);
+      const t = setInterval(readBoth, 60);
+      setTimeout(() => clearInterval(t), 3400);
+    });
+
+    const STEP = 360 / 40, X0 = 44, X1 = 620, Y0 = 24, Y1 = 150, SLOTS = 6;
+    const chart = document.getElementById('chart');
+    const px = (slot) => X0 + ((slot + SLOTS) / (SLOTS * 2)) * (X1 - X0);
+    const py = (lift) => Y1 - (lift / 56) * (Y1 - Y0);
+    const at = (o, slot) => peekAmount(Math.abs(slot) * STEP, STEP, o.spread, o.curve) * o.peek;
+    const series = (o, color, width) => {
+      const pts = Array.from({ length: SLOTS * 2 + 1 }, (_, k) => `${px(k - SLOTS).toFixed(1)},${py(at(o, k - SLOTS)).toFixed(1)}`).join(' ');
+      const dots = Array.from({ length: SLOTS * 2 + 1 }, (_, k) =>
+        `<circle cx="${px(k - SLOTS).toFixed(1)}" cy="${py(at(o, k - SLOTS)).toFixed(1)}" r="3.2" fill="${color}"></circle>`).join('');
+      return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${width}"></polyline>${dots}`;
+    };
+
+    const draw = () => {
+      const grid = [0, 14, 28, 42, 56].map((v) =>
+        `<line x1="${X0}" y1="${py(v)}" x2="${X1}" y2="${py(v)}" stroke="var(--grid)" stroke-width="1"></line>` +
+        `<text x="${X0 - 8}" y="${py(v) + 4}" text-anchor="end" fill="currentColor" opacity=".55" font-size="11" font-family="ui-monospace, monospace">${v}</text>`).join('');
+      const ticks = Array.from({ length: SLOTS * 2 + 1 }, (_, k) => k - SLOTS).map((slot) =>
+        `<text x="${px(slot).toFixed(1)}" y="${Y1 + 20}" text-anchor="middle" fill="currentColor" opacity=".55" font-size="11" font-family="ui-monospace, monospace">${slot === 0 ? 'front' : Math.abs(slot)}</text>`).join('');
+      chart.innerHTML = grid + ticks + series(BASE, 'var(--ocher)', 2) + series(opts, 'var(--blue)', 2.4) +
+        `<text x="${X1}" y="${Y0 - 8}" text-anchor="end" font-size="11" font-family="ui-monospace, monospace" fill="var(--blue)">yours</text>` +
+        `<text x="${X1 - 62}" y="${Y0 - 8}" text-anchor="end" font-size="11" font-family="ui-monospace, monospace" fill="var(--ocher)">defaults</text>`;
+      document.getElementById('tbl').innerHTML = [0, 1, 2, 3, 4].map((slot) =>
+        `<tr><td>${slot === 0 ? 'front card' : slot + (slot === 1 ? ' slot' : ' slots')}</td><td>${at(BASE, slot).toFixed(1)}px</td><td>${at(opts, slot).toFixed(1)}px</td></tr>`).join('');
+      document.getElementById('code').textContent =
+        `createDispenser(host, {\n  items,\n  render,\n  peek: ${opts.peek},\n  peekSpread: ${opts.spread},\n  peekCurve: ${opts.curve},\n})`;
+    };
+
+    const rebuild = () => {
+      document.getElementById('v1').textContent = String(opts.peek);
+      document.getElementById('v2').textContent = opts.spread.toFixed(1);
+      document.getElementById('v3').textContent = opts.curve.toFixed(1);
+      document.getElementById('tagB').textContent = `${opts.peek} · ${opts.spread.toFixed(1)} · ${opts.curve.toFixed(1)}`;
+      B.destroy();
+      B = mk(document.getElementById('drumB'), opts);
+      B.setAngle(angle);
+      draw();
+      measure('drumB', 'cntB', 'maxB');
+    };
+    const bind = (id, key) => document.getElementById(id).addEventListener('input', (e) => { opts[key] = Number(e.target.value); rebuild(); });
+    bind('k1', 'peek'); bind('k2', 'spread'); bind('k3', 'curve');
+    for (const btn of document.querySelectorAll('[data-preset]')) {
+      btn.addEventListener('click', () => {
+        const [p, s, c] = btn.dataset.preset.split(',').map(Number);
+        Object.assign(opts, { peek: p, spread: s, curve: c });
+        document.getElementById('k1').value = String(p);
+        document.getElementById('k2').value = String(s);
+        document.getElementById('k3').value = String(c);
+        rebuild();
+      });
     }
-    const btn = document.getElementById('spin');
-    btn.addEventListener('click', () => { btn.disabled = true; d.spinTo('random').then(() => { btn.disabled = false; }); });
+
+    draw();
+    // The wave only exists while the drum moves — start turning so the difference is on screen at once.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      angle = -STEP * 0.35; A.setAngle(angle); B.setAngle(angle); readBoth();
+    } else {
+      turning = true;
+      turnBtn.setAttribute('aria-pressed', 'true');
+      turnBtn.textContent = 'stop';
+      raf = requestAnimationFrame(loop);
+    }
   </script>
 </body>
 </html>

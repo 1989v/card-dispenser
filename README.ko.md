@@ -66,7 +66,7 @@ d.destroy();
 
 옵션: `radius` `cardW` `cardH` `tilt`(내려다보는 각, 18) `tiltMin` `tiltMax` `tiltDrag` `lift` `forward`
 `pullScale` `peek`(움직일 때 올라오는 높이, 32) `revealMs`(멈춘 뒤 일어나는 시간, 360)
-`peekSpread`(peek 이 걸리는 폭, 4칸) `idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `photoSteps`(2) `ticksEvery`
+`peekSpread`(peek 이 걸리는 폭, 4칸) `peekCurve`(어깨가 떨어지는 속도, 4) `idleMs`(스크롤이 이만큼 조용하면 멈춘 것, 260) `dwell` `photoSteps`(2) `ticksEvery`
 `lite` `nearSteps` `label`.
 
 **그림이 가장 비싸다.** 판이 돌면 모든 카드가 정면을 지나므로, 얼굴에 주소를 그대로 박으면 스핀 한 번에 전부 내려받는다
@@ -74,7 +74,9 @@ d.destroy();
 정면 ±`photoSteps`(2) 칸에 들어오고 **판이 멈춘 뒤에야** 붙는다. 옆으로 선 카드의 그림은 어차피 보이지 않는다.
 
 `peek` 은 **여러 장에 걸쳐** 걸린다(`peekSpread`). 한 장만 올라오게 두면 스핀이 한 칸을 수십 ms 만에 지나가
-눈에 안 보인다 — 물결이 판을 도는 것으로 읽혀야 뽑히는 과정이 보인다.
+눈에 안 보인다 — 물결이 판을 도는 것으로 읽혀야 뽑히는 과정이 보인다. 다만 어깨까지 고르게 올라오면
+**삼각산 하나가 판을 도는 것처럼** 보이므로, `peekCurve` 로 주변이 먼저 내려앉게 한다(1 = 대칭 언덕).
+세 값은 [튜너 페이지](https://1989v.github.io/card-dispenser/)에서 돌려 보며 고르고, 고른 값이 코드로 찍힌다.
 `lite: true` 는 터치 기기용이다. 정면에서 `nearSteps`(7)칸 밖의 카드는 보이는 면 하나와 옆면 하나, 요소 둘만 남긴다.
 카드 한 장이 3D 요소 다섯 개 = 컴포지터 레이어 다섯 개라 80장짜리 판이 폰에서 400 레이어를 넘겼다 — 거기서는 장수도 줄인다(40장이면 된다).
 

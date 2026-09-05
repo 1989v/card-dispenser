@@ -42,8 +42,10 @@ export interface DispenserOptions<T> {
   forward?: number;
   pullScale?: number;
   /**
-   * 판이 움직이는 동안 정면 부근 카드가 덱에서 올라오는 높이(px).
-   * 완전히 일어난 높이([lift])의 절반을 넘지 않게 둔다 — 넘으면 「지나가는 중」과 「뽑혔다」가 안 갈린다.
+   * 판이 움직이는 동안 정면 부근 카드가 덱에서 올라오는 높이(px). [lift] 보다 낮게 둔다.
+   *
+   * 가까워도 「지나가는 중」과 「뽑혔다」는 갈린다 — 뽑힌 카드는 높이만 다른 게 아니라 얼굴을 돌리고(rotateY)
+   * 앞으로 나오며(translateZ) 커지기 때문이다. 그래서 높이는 눈에 띌 만큼 줘도 된다.
    */
   peek?: number;
   /**
@@ -53,6 +55,11 @@ export interface DispenserOptions<T> {
    * (실측: 0.5칸이면 중앙값 1장, 2.4칸이면 4장, 4칸이면 7장). 여러 장이 함께 올라와야 물결이 판을 도는 것으로 읽힌다.
    */
   peekSpread?: number;
+  /**
+   * 물결의 어깨가 떨어지는 속도. 1 이면 대칭 언덕, 클수록 정면만 남기고 **주변이 빨리 내려앉는다**.
+   * 넓게(peekSpread) 잡아 여러 장이 반응하게 두면서도 봉우리가 삼각산처럼 서지 않게 하는 손잡이다.
+   */
+  peekCurve?: number;
   /** 멈춘 뒤 완전히 일어나는 데 걸리는 시간(ms). 0 이면 즉시 */
   revealMs?: number;
   /** setAngle(스크롤)이 이만큼 조용하면 멈춘 것으로 보고 일어난다(ms) */
@@ -105,11 +112,12 @@ const DEFAULTS = {
   lift: 54,
   forward: 96,
   pullScale: 0.1,
-  peek: 32,
+  peek: 46,
   revealMs: 360,
   idleMs: 260,
   dwell: 0.6,
   peekSpread: 4,
+  peekCurve: 4,
   photoSteps: 2,
   ticksEvery: 'auto' as number | 'auto',
   lite: false,
@@ -140,13 +148,14 @@ export const pullAmount = (angleDistance: number, step: number, dwell: number): 
  * 정면과의 각 거리 → peek 정도 (0~1). [pullAmount] 보다 **넓은** 창을 쓴다.
  * spread 칸에서 0, 정면에서 1, 사이는 smoothstep — 여러 장이 함께 올라와 물결로 보인다.
  */
-export const peekAmount = (angleDistance: number, step: number, spread: number): number => {
+export const peekAmount = (angleDistance: number, step: number, spread: number, curve = 1): number => {
   const span = step * spread;
   if (span <= 0) return 0;
   const ad = Math.abs(angleDistance);
   if (ad >= span) return 0;
   const k = 1 - ad / span;
-  return k * k * (3 - 2 * k);
+  const hill = k * k * (3 - 2 * k);
+  return curve === 1 ? hill : Math.pow(hill, curve);
 };
 
 const norm = (a: number): number => ((a % 360) + 360) % 360;
@@ -279,7 +288,7 @@ export function createDispenser<T>(host: HTMLElement, options: DispenserOptions<
         // r: 완전히 일어나는 정도. 움직이는 동안(reveal 0)은 peek 만큼만 올라온다
         const r = p * reveal;
         // 움직이는 동안에만 넓은 물결이 걸린다 — 멈추면(reveal 1) 정면 한 장만 일어나는 원래 모습으로 돌아간다
-        const pk = peekAmount(ad, step, o.peekSpread) * (1 - reveal);
+        const pk = peekAmount(ad, step, o.peekSpread, o.peekCurve) * (1 - reveal);
         const lift = o.peek * Math.max(pk, p) + (o.lift - o.peek) * r;
         const tf =
           lift === 0 && r === 0

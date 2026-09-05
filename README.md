@@ -89,8 +89,14 @@ fully revealed front card is tapped, clicked, or activated with Enter / Space. A
 | `destroy()` | Remove everything and listeners. |
 
 Options: `items` `render` `onChange` `onActivate` `minCards` `radius` `cardW` `cardH` `tilt` `tiltMin` `tiltMax`
-`tiltDrag` `lift` `forward` `pullScale` `peek` `peekSpread` `revealMs` `idleMs` `dwell` `photoSteps` `ticksEvery`
-`lite` `nearSteps` `label`. Defaults are tuned for a 520–600 px wide host.
+`tiltDrag` `lift` `forward` `pullScale` `peek` `peekSpread` `peekCurve` `revealMs` `idleMs` `dwell` `photoSteps`
+`ticksEvery` `lite` `nearSteps` `label`. Defaults are tuned for a 520–600 px wide host.
+
+**The wave has three knobs, and there is a page for turning them:**
+[tune it live](https://1989v.github.io/card-dispenser/). `peek` (46) is how far a passing card rises,
+`peekSpread` (4) how many slots either side join in, and `peekCurve` (4) how fast the shoulders fall — 1 is a
+symmetric hill, which reads as a triangular mountain riding the drum; raising it leaves the crest and drops the
+rest. The page shows both drums turning side by side and prints the options you land on.
 
 **Grab it and turn it.** Dragging sideways spins the drum; dragging up and down changes how far above it you
 stand (`tilt`, 18° by default, clamped to `tiltMin`–`tiltMax`), and `setTilt(deg)` does the same from code.

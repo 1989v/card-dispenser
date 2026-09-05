@@ -207,6 +207,21 @@ describe('createDispenser', () => {
     expect(peekAmount(step, step, 2.4)).toBeGreaterThan(peekAmount(step * 2, step, 2.4));
   });
 
+  it('peekCurve 를 올리면 봉우리는 그대로고 어깨가 먼저 내려앉는다', () => {
+    const step = 9;
+    // 정면은 곡선과 무관하게 1 이다 — 봉우리 높이는 peek 이 정한다
+    expect(peekAmount(0, step, 4, 1)).toBeCloseTo(1, 5);
+    expect(peekAmount(0, step, 4, 4)).toBeCloseTo(1, 5);
+    // 옆으로 갈수록 큰 곡선이 더 빨리 떨어진다
+    for (const slot of [1, 2, 3]) {
+      const gentle = peekAmount(slot * step, step, 4, 1);
+      const steep = peekAmount(slot * step, step, 4, 4);
+      expect(steep).toBeLessThan(gentle);
+    }
+    // 닿는 폭 밖은 둘 다 0 — 곡선이 폭을 늘리지는 않는다
+    expect(peekAmount(4 * step, step, 4, 4)).toBe(0);
+  });
+
   it('그림은 정면 photoSteps 칸 안의 카드에만 붙는다 (나머지는 data-src 로 남아 요청되지 않는다)', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
