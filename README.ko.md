@@ -9,7 +9,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](#크기)
 
-데모: https://1989v.github.io/card-dispenser/
+**[브라우저에서 바로 써 보기](https://1989v.github.io/card-dispenser/)** — 두 판을 나란히 돌리며 물결을 슬라이더로 맞추고,
+고른 값이 코드로 찍혀 나온다.
 
 ## 왜 만들었나
 
@@ -108,6 +109,12 @@ d.destroy();
 
 카드 한 장이 3D 요소 다섯 개(앞·뒤·옆면 셋)라 판 하나가 수백 레이어다. 화면 밖 판은 `content-visibility: auto` 로
 아예 그리지 않고, `will-change` 는 움직이는 동안(`.cd.is-live`)에만 건다. 터치 기기에서는 스크롤로 `setAngle` 을 부르지 않는다.
+
+## 데모 페이지
+
+[1989v.github.io/card-dispenser](https://1989v.github.io/card-dispenser/) 은 이 저장소의 `docs/` 폴더이고, GitHub Pages 가 `main` 에서 그대로 서빙한다.
+페이지는 `docs/lib/index.js` 를 읽는데 그 파일은 `npm run build` 가 `dist/` 에서 복사한다 —
+**데모가 이상하게 굴면 대개 지난 빌드의 번들을 돌리고 있는 것**이다. 다시 빌드하고 새로고침한다.
 
 ## 크기
 

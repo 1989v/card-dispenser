@@ -9,7 +9,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](#size)
 
-Live demo: https://1989v.github.io/card-dispenser/
+**[Try it in the browser](https://1989v.github.io/card-dispenser/)** — two drums turning side by side, sliders for
+the wave, and the options you land on printed back as code.
 
 ## Why this exists
 
@@ -165,6 +166,12 @@ A card is five 3D elements (two faces, three edges), so a drum is hundreds of co
 mobile scrolling smooth: the scene uses `content-visibility: auto`, so drums that are off-screen are not rendered at all,
 and `will-change: transform` is applied only while the drum is moving (`.cd.is-live`). Don't call `setAngle` from
 scroll on touch devices.
+
+## Demo page
+
+The playground at [1989v.github.io/card-dispenser](https://1989v.github.io/card-dispenser/) is this repository's `docs/` folder, served by GitHub
+Pages from `main`. It loads `docs/lib/index.js`, which `npm run build` copies out of `dist/` — so a demo
+that behaves oddly is usually a demo running last release's bundle. Rebuild, then reload.
 
 ## Size
 
